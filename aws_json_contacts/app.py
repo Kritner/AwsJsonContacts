@@ -25,20 +25,17 @@ def lambda_handler(event, context):
         Return doc: https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-lambda-proxy-integrations.html
     """
 
-    # try:
-    #     ip = requests.get("http://checkip.amazonaws.com/")
-    # except requests.RequestException as e:
-    #     # Send some context about this error to Lambda Logs
-    #     print(e)
+    # Parse event json
+    # if not valid json, return 400
 
-    #     raise e
+    # check / get first_name, middle_name, last_name, zip_code from json
+    # if none of the above fields exist return 400
+
+    # otherwise, insert into s3 bucket
+
+    body = event['body']
 
     return {
         "statusCode": 200,
-        "body": json.dumps(
-            {
-                "message": "hello world",
-                # "location": ip.text.replace("\n", "")
-            }
-        ),
+        "body": json.dumps(event),
     }

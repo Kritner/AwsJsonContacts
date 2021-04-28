@@ -2,7 +2,7 @@ import json
 
 import pytest
 
-from hello_world import app
+from aws_json_contacts import app
 
 
 @pytest.fixture()
@@ -10,6 +10,7 @@ def apigw_event():
     """ Generates API GW Event"""
 
     return {
+        "message": "hello world",
         "body": '{ "test": "body"}',
         "resource": "/{proxy+}",
         "requestContext": {
