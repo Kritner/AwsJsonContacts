@@ -10,11 +10,20 @@ Globals:
   Function:
     Timeout: 3
 
+Parameters:
+  BucketNameParameter:
+    Type: String
+    Description: The name of the bucket used for storage of contact information
+
 Resources:
   AwsJsonContactsFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
+      Role: !GetAtt JsonContactsLambdaRole.Arn
       PackageType: Image
+      Environment:
+        Variables:
+          bucket_name: !Ref BucketNameParameter
       Events:
         LambdaContacts:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
@@ -25,7 +34,46 @@ Resources:
       DockerTag: python3.7-v1
       DockerContext: ./aws_json_contacts
       Dockerfile: Dockerfile
-
+  ContactsBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Ref BucketNameParameter
+  ContactBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref ContactsBucket
+      PolicyDocument:
+        Statement:
+          - Action:
+              - 's3:*'
+            Effect: Allow
+            Resource:
+              - !Sub 'arn:aws:s3:::${ContactsBucket}'
+              - !Sub 'arn:aws:s3:::${ContactsBucket}/*'
+            # Principal: "*"
+            Principal:
+              AWS: !Sub '${AWS::AccountId}'
+  JsonContactsLambdaRole:
+    Type: AWS::IAM::Role
+    Description: "The Lambda function role, allows for S3 bucket writing"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: JsonContactsLambdaS3Role
+          PolicyDocument:
+            Statement:
+              Action:
+                - 's3:*'
+              Resource: '*'
+              Effect: Allow
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
   # Find out more about other implicit resources you can reference within SAM
@@ -37,5 +85,5 @@ Outputs:
     Description: "Contacts Lambda Function ARN"
     Value: !GetAtt AwsJsonContactsFunction.Arn
   AwsJsonContactsIamRole:
-    Description: "Implicit IAM Role created for Contacts function"
-    Value: !GetAtt AwsJsonContactsFunctionRole.Arn
+    Description: "IAM Role created for Contacts function"
+    Value: !GetAtt JsonContactsLambdaRole.Arn

@@ -1,4 +1,4 @@
-class ContactInformation:
+class ContactInformation(object):
     """
     Represents contact information
     """
@@ -45,6 +45,15 @@ class ContactInformation:
     def zip_code(self, value) -> None:
         if self.__zip_code is None:
             self.__zip_code = value
+
+    @property
+    def json_blob(self) -> str:
+        return self.__json_blob
+
+    @json_blob.setter
+    def json_blob(self, value) -> None:
+        if self.__json_blob is None:
+            self.__json_blob = value
 
     @property
     def is_valid_contact(self) -> bool:

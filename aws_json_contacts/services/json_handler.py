@@ -14,7 +14,7 @@ def get_json_from_string(candidate_json: str) -> JsonParsedResult:
     """
     try:
         parsed_json = json.loads(candidate_json)
-    except ValueError:
+    except ValueError as e:
         return JsonParsedResult(False, None)
 
     return JsonParsedResult(True, parsed_json)
@@ -28,7 +28,11 @@ def get_contact_information_from_json(json_blob: dict) -> ContactInformation:
     :return: ContactInformation
     """
 
-    return __traverse_json(json_blob, ContactInformation())
+    contact_information = __traverse_json(json_blob, ContactInformation())
+    if contact_information.is_valid_contact:
+        contact_information.json_blob = json_blob
+
+    return contact_information
 
 
 def __traverse_json(json_blob: dict, contact_information: ContactInformation) -> ContactInformation:

@@ -1,4 +1,4 @@
-class JsonParsedResult:
+class JsonParsedResult(object):
     """
     Represents the result of attempting to read a string as json
     """
